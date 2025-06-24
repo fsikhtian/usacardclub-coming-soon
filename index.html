@@ -20,7 +20,8 @@
       padding: 1rem;
     }
     .logo img {
-      max-width: 300px;
+      width: 100%;
+      max-width: 500px;
       height: auto;
       margin-bottom: 1rem;
     }
@@ -84,7 +85,7 @@
 </head>
 <body>
   <div class="logo">
-    <img src="logoUSACardClub_bigg.png" alt="USACardClub Logo">
+    <img src="public/logoUSACardClub_bigg.png" alt="USACardClub Logo">
   </div>
   <div class="headline">Prepaid U.S. Visa Cards. Built for the World.</div>
   <div class="value-prop">
@@ -124,23 +125,12 @@
       const feedback = document.getElementById('feedback').value;
 
       try {
-        const res = await fetch("https://api.airtable.com/v0/appOzpDcRKHF7cp4i/Leads", {
+        const res = await fetch("/api/submit-lead", {
           method: "POST",
           headers: {
-            "Authorization": "Bearer patBLozi9O2AIXG29.bb9ec26efeb06286e97c00155fd783cdbd735c8e1ed8066d0fad9f7b1789b941",
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-            records: [
-              {
-                fields: {
-                  Email: email,
-                  RequestedFeatures: features,
-                  Feedback: feedback
-                }
-              }
-            ]
-          })
+          body: JSON.stringify({ email, features, feedback })
         });
 
         if (res.ok) {
@@ -148,11 +138,11 @@
           form.reset();
         } else {
           const errorData = await res.json();
-          status.textContent = "Something went wrong: " + (errorData?.error?.message || "Unknown error");
+          status.textContent = "Something went wrong: " + (errorData?.error || "Unknown error");
         }
       } catch (err) {
         console.error(err);
-        status.textContent = "Failed to connect to Airtable.";
+        status.textContent = "Failed to connect to server.";
       }
     });
   </script>
