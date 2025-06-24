@@ -9,22 +9,20 @@
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
-      background-color: #001f4d;
+      background-color: #19306A;
       color: #ffffff;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       text-align: center;
       padding: 1rem;
     }
-    .logo {
-      margin-bottom: 0.5rem;
-    }
     .logo img {
-      height: 1.75rem; /* Match headline size */
-      width: auto;
+      max-width: 300px;
+      height: auto;
+      margin-bottom: 1rem;
     }
     .headline {
       font-size: 1.75rem;
@@ -78,23 +76,31 @@
       font-size: 0.875rem;
       color: #cccccc;
     }
+    .status {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <div class="logo">
-    <img src="public/logoUSACardClub_bigg.png" alt="USACardClub Logo">
+    <img src="logoUSACardClub_bigg.png" alt="USACardClub Logo">
   </div>
   <div class="headline">Prepaid U.S. Visa Cards. Built for the World.</div>
   <div class="value-prop">
     Say goodbye to “card declined.” We make it easy for international buyers to get U.S.-issued prepaid cards that can be used online, via phone, or in store with a digital wallet everywhere Visa debit cards are accepted in the U.S.A.
   </div>
   <div class="cta">Be the first to know. Reserve your spot today:</div>
-  <form>
-    <input type="email" placeholder="Your email address" required />
-    <textarea rows="3" placeholder="What features do you want in a virtual prepaid gift card service?"></textarea>
-    <textarea rows="2" placeholder="Any questions or feedback?"></textarea>
+
+  <form id="leadForm">
+    <input type="email" id="email" placeholder="Your email address" required />
+    <textarea rows="3" id="features" placeholder="What features do you want in a virtual prepaid gift card service?"></textarea>
+    <textarea rows="2" id="feedback" placeholder="Any questions or feedback?"></textarea>
     <button type="submit">Pre-register Your Interest</button>
   </form>
+
+  <div class="status" id="status"></div>
+
   <div class="social">
     <span>Share the excitement:</span>
     <a href="#">Twitter</a>
@@ -104,6 +110,52 @@
   <footer>
     &copy; 2025 USACardClub. All rights reserved.
   </footer>
+
+  <script>
+    const form = document.getElementById('leadForm');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = "Submitting...";
+
+      const email = document.getElementById('email').value;
+      const features = document.getElementById('features').value;
+      const feedback = document.getElementById('feedback').value;
+
+      try {
+        const res = await fetch("https://api.airtable.com/v0/appOzpDcRKHF7cp4i/Leads", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer patBLozi9O2AIXG29.bb9ec26efeb06286e97c00155fd783cdbd735c8e1ed8066d0fad9f7b1789b941",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            records: [
+              {
+                fields: {
+                  Email: email,
+                  RequestedFeatures: features,
+                  Feedback: feedback
+                }
+              }
+            ]
+          })
+        });
+
+        if (res.ok) {
+          status.textContent = "Thank you! Your submission has been received.";
+          form.reset();
+        } else {
+          const errorData = await res.json();
+          status.textContent = "Something went wrong: " + (errorData?.error?.message || "Unknown error");
+        }
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Failed to connect to Airtable.";
+      }
+    });
+  </script>
 </body>
 </html>
 
